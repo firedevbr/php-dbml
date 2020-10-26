@@ -93,6 +93,9 @@ class Decoder
             if ($attribute === 'unique') {
                 $result['unique'] = true;
             }
+            if ($attribute === 'increment') {
+                $result['autoIncrement'] = true;
+            }
         }
 
         return $result;
