@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Dbml\Dbml\Model;
 
 use Dbml\Dbml\Model\Table\Column;
+use Dbml\Dbml\Model\Table\Index;
 use Dbml\Dbml\Model\Table\Relationship;
 
 /**
@@ -34,18 +35,29 @@ class Table
     public $relationships = [];
 
     /**
+     * @var Index[]
+     */
+    public $indexes = [];
+
+    /**
      * Table constructor.
      * @param string $name
      * @param string|null $alias
      * @param Column[] $columns
      * @param Relationship[] $relationships
      */
-    public function __construct(string $name, string $alias = null, array $columns = [], array $relationships = [])
-    {
-        $this->name = $name;
-        $this->alias = $alias;
-        $this->columns = $columns;
+    public function __construct(
+        string $name,
+        ?string $alias = null,
+        array $columns = [],
+        array $relationships = [],
+        array $indexes = []
+    ) {
+        $this->name          = $name;
+        $this->alias         = $alias;
+        $this->columns       = $columns;
         $this->relationships = $relationships;
+        $this->indexes       = $indexes;
     }
 
     /**
@@ -66,6 +78,13 @@ class Table
     public function addRelationship(Relationship $relationship): Table
     {
         $this->relationships[] = $relationship;
+
+        return $this;
+    }
+
+    public function addIndex(Index $index): Table
+    {
+        $this->indexes[] = $index;
 
         return $this;
     }
