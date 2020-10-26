@@ -1,0 +1,10 @@
+version: '3.5'
+services:
+  www:
+    build:
+      context: .
+    image: registry.gitlab.com/firedevbr/baseapp
+    volumes:
+      - "./:/app/"
+    ports:
+      - 80:80

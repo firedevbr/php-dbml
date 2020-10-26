@@ -1,0 +1,36 @@
+Project roteiro_de_viagem {
+  database_type: 'MySQL'
+  Note: 'Opções para o usuário montar seu roteiro de viagens'
+}
+
+Table opcoes as O {
+  id int [pk, increment]
+  descricao varchar(255) [unique, not null]
+}
+
+Table categorias as C {
+  id int [pk, increment]
+  descricao varchar(255) [unique, not null]
+}
+
+Table categorias_opcoes as CO {
+  opcao_id integer
+  categoria_id integer
+  dia dias
+
+  indexes {
+    (opcao_id, categoria_id, dia) [pk]
+  }
+}
+
+enum dias {
+  1
+  2
+  3
+  4
+  5
+  6
+}
+
+Ref: CO.opcao_id > O.id
+Ref: CO.categoria_id > C.id

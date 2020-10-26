@@ -1,7 +1,7 @@
 <?php
 
-require __DIR__ . '/../vendor/autoload.php';
-require __DIR__ . '/src/helpers.php';
+require __DIR__ . '/../../../vendor/autoload.php';
+require __DIR__ . '/../src/helpers.php';
 
 use Dbml\Dbml;
 
