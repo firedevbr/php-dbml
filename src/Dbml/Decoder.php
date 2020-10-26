@@ -56,7 +56,7 @@ class Decoder
     {
         $result = [];
 
-        $re = '/([\w_]+) ([a-z]+)( \[(.*)])?/m';
+        $re = '/([\w_]+) ([a-z\(\w\)]+)( \[(.*)])?/m';
         preg_match_all($re, $content, $columns, PREG_SET_ORDER);
 
         foreach ($columns as $item) {
