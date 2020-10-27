@@ -32,14 +32,21 @@ class Decoder
     {
         $result = [];
 
-        $re = '/Table (?|([\w_]+())|([\w]+) as ([\w]+)) \{\s*([^}]*)}/m';
+        $re = '/Table (?|([\w]+)|([\w]+) as ([\w]+)) (?|\{\s*([^}]*)\}[\W]+}|\{\s*([^}]*)})/m';
         preg_match_all($re, $content, $tables, PREG_SET_ORDER);
 
+
         foreach ($tables as $item) {
+            $indexesDefinitions = self::getIndexesDefinitions(trim($item[0]));
+
             $name = trim($item[1]);
             $alias = !empty($item[2]) ? trim($item[2]) : null;
-            $columns = self::decodeColumns(trim($item[3]));
-            $result[] = new Model\Table($name, $alias, $columns);
+            $columns = self::decodeColumns(trim(preg_replace('/indexes \{\s*([^}]*)/m', '', $item[3])));
+            $indexes = [];
+            if (!empty($indexesDefinitions)) {
+                $indexes = self::decodeIndexes($indexesDefinitions[0][1], $columns);
+            }
+            $result[] = new Model\Table($name, $alias, $columns, $indexes);
         }
 
         // -- relationships
@@ -68,6 +75,49 @@ class Decoder
             }
 
             $result[] = new Table\Column($name, $type, $attributes);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $indexesDefinitions
+     * @return Table\Index[]
+     */
+    private static function decodeIndexes(string $indexesDefinitions, array $tableColumns = []): array
+    {
+        $result = [];
+
+        echo "<pre>";
+
+        $re = '/(?|(\([\w\s,]*\))|([\w]+))( \[(.*)])?/m';
+        preg_match_all($re, $indexesDefinitions, $indexes, PREG_SET_ORDER);
+
+        foreach ($indexes as $index) {
+            $associatedColumns  = preg_replace('(\(|\))', '', $index[1]);
+            $associatedColumns  = explode(", ", $associatedColumns);
+            $selectedColumns    = [];
+
+            /** @var Table\Column $tableColumn */
+            foreach ($tableColumns as $tableColumn) {
+                if (in_array($tableColumn->getName(), $associatedColumns)) {
+                    $selectedColumns[] = $tableColumn;
+                }
+            }
+
+            $indexObject = new Table\Index($selectedColumns);
+            if (isset($index[3])) {
+                $settings = explode(", ", $index[3]);
+
+                if (in_array('pk', $settings)) {
+                    $indexObject->setPrimaryKey(true);
+                }
+                if (in_array('unique', $settings)) {
+                    $indexObject->setUnique(true);
+                }
+            }
+
+            $result[] = $indexObject;
         }
 
         return $result;
@@ -174,5 +224,13 @@ class Decoder
         }
 
         throw new Exception('Unsupported type.');
+    }
+
+    private static function getIndexesDefinitions(string $tableDefinition): array
+    {
+        $re = '/indexes \{\s*([^}]*)}/m';
+        preg_match_all($re, $tableDefinition, $indexes, PREG_SET_ORDER);
+
+        return $indexes;
     }
 }

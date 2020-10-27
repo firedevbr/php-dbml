@@ -45,7 +45,7 @@ class Index
     {
         $this->primaryKey = $primaryKey;
         $this->unique     = $unique;
-        $this->columns    = $columns;
+        $this->setColumns($columns);
         $this->type       = $type;
     }
 
@@ -94,12 +94,15 @@ class Index
      */
     public function setColumns(array $columns): void
     {
-        $this->columns = $columns;
+        foreach ($columns as $column) {
+            $this->addColumn($column);
+        }
     }
 
     public function addColumn(Column $column): self
     {
         $this->columns[] = $column;
+        $column->addIndex($this);
 
         return $this;
     }
