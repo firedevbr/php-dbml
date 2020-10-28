@@ -51,7 +51,7 @@ class Decoder
             if (!empty($indexesDefinitions)) {
                 $indexes = self::decodeIndexes($indexesDefinitions[0][1], $columns);
             }
-            $result[] = new Model\Table($name, $alias, $columns, $indexes);
+            $result[] = new Model\Table($name, $alias, $columns, [], $indexes);
         }
 
         // -- relationships
@@ -185,7 +185,7 @@ class Decoder
             // -- get relationship table
             $table = null;
             foreach ($tables as $table) {
-                if ($item[1] === $table->name) {
+                if ($item[1] === $table->name || $item[1] === $table->alias) {
                     break;
                 }
             }
@@ -199,7 +199,7 @@ class Decoder
             // -- get foreign table
             $foreignTable = null;
             foreach ($tables as $foreignTable) {
-                if ($item[4] === $foreignTable->name) {
+                if ($item[4] === $foreignTable->name || $item[4] === $foreignTable->alias) {
                     break;
                 }
             }
