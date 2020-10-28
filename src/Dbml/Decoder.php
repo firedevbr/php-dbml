@@ -35,13 +35,18 @@ class Decoder
         $re = '/Table (?|([\w]+)|([\w]+) as ([\w]+)) (?|\{\s*([^}]*)\}[\W]+}|\{\s*([^}]*)})/m';
         preg_match_all($re, $content, $tables, PREG_SET_ORDER);
 
+        $reEnums = '/enum ([\w_]+)(\s*\{([^}]*)})/m';
+        preg_match_all($reEnums, $content, $enums, PREG_SET_ORDER);
+
+        $enums = self::decodeEnums($enums);
 
         foreach ($tables as $item) {
             $indexesDefinitions = self::getIndexesDefinitions(trim($item[0]));
 
             $name = trim($item[1]);
             $alias = !empty($item[2]) ? trim($item[2]) : null;
-            $columns = self::decodeColumns(trim(preg_replace('/indexes \{\s*([^}]*)/m', '', $item[3])));
+            $item[3] = preg_replace('/indexes \{\s*([^}]*)/m', '', $item[3]);
+            $columns = self::decodeColumns(trim($item[3]), $enums);
             $indexes = [];
             if (!empty($indexesDefinitions)) {
                 $indexes = self::decodeIndexes($indexesDefinitions[0][1], $columns);
@@ -59,9 +64,11 @@ class Decoder
      * @param string $content
      * @return Table\Column[]
      */
-    private static function decodeColumns(string $content): array
+    private static function decodeColumns(string $content, array $enums = []): array
     {
         $result = [];
+
+        $enumsIds = array_keys($enums);
 
         $re = '/([\w_]+) ([a-z\(\w\)]+)( \[(.*)])?/m';
         preg_match_all($re, $content, $columns, PREG_SET_ORDER);
@@ -69,12 +76,19 @@ class Decoder
         foreach ($columns as $item) {
             $name = trim($item[1]);
             $type = trim($item[2]);
+            $enum = null;
+            if (in_array($type, $enumsIds)) {
+                /** @var Table\Type\Enum $selectedEnum */
+                $enum = $enums[$type];
+                $type = 'enum';
+            }
+
             $attributes = [];
             if (!empty($item[4])) {
                 $attributes = self::decodeAttributes(trim($item[4]));
             }
 
-            $result[] = new Table\Column($name, $type, $attributes);
+            $result[] = new Table\Column($name, $type, $attributes, [], $enum);
         }
 
         return $result;
@@ -232,5 +246,28 @@ class Decoder
         preg_match_all($re, $tableDefinition, $indexes, PREG_SET_ORDER);
 
         return $indexes;
+    }
+
+    /**
+     * @param array $enums
+     */
+    private static function decodeEnums(array $enums): array
+    {
+        $result = [];
+
+        foreach ($enums as $enum) {
+            echo "<pre>";
+            $identifier = $enum[1];
+            $values     = explode("\n", trim($enum[3]));
+
+            $values = array_map(function ($value) {
+                return trim(str_replace("\"", "", $value));
+            }, $values);
+
+            $enumObj = new Table\Type\Enum($identifier, $values);
+            $result[$identifier] = $enumObj;
+        }
+
+        return $result;
     }
 }

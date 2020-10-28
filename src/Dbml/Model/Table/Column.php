@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Dbml\Dbml\Model\Table;
 
+use Dbml\Dbml\Model\Table\Type\Enum;
+
 /**
  * Class Column
  * @package Dbml\Dbml\Table
@@ -56,18 +58,29 @@ class Column
     public $indexes = [];
 
     /**
+     * @var null|Enum
+     */
+    public $enum = null;
+
+    /**
      * Column constructor.
      * @param string $name
      * @param string $type
      * @param array $attributes
      * @param Index[]|null $indexes
      */
-    public function __construct(string $name, string $type, array $attributes = [], ?array $indexes = [])
-    {
+    public function __construct(
+        string $name,
+        string $type,
+        array $attributes = [],
+        array $indexes = [],
+        ?Enum $enum = null
+    ) {
         $this->name    = $name;
         $this->type    = $type;
         $this->indexes = $indexes;
         $this->initAttributes($attributes);
+        $this->enum    = $enum;
     }
 
     /**
@@ -236,5 +249,29 @@ class Column
         $this->indexes[] = $index;
 
         return $this;
+    }
+
+    /**
+     * @return Enum|null
+     */
+    public function getEnum(): ?Enum
+    {
+        return $this->enum;
+    }
+
+    /**
+     * @param Enum|null $enum
+     */
+    public function setEnum(?Enum $enum): void
+    {
+        $this->enum = $enum;
+    }
+
+    /**
+     * @return array
+     */
+    public function getEnumValues(): array
+    {
+        return $this->enum->getValues();
     }
 }
