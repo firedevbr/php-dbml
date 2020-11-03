@@ -4,13 +4,23 @@ Project roteiro_de_viagem {
 }
 
 Table opcoes as O {
-  id int [pk, increment]
+  id int [increment]
   descricao varchar(255) [unique, not null]
+
+  indexes {
+    id [pk]
+    descricao
+  }
 }
 
 Table categorias as C {
-  id int [pk, increment]
+  id int [increment]
   descricao varchar(255) [unique, not null]
+
+  indexes {
+    id [pk]
+    descricao
+  }
 }
 
 Table categorias_opcoes as CO {
@@ -19,7 +29,8 @@ Table categorias_opcoes as CO {
   dia dias
 
   indexes {
-    (opcao_id, categoria_id, dia) [pk]
+    (opcao_id, categoria_id) [pk]
+    (opcao_id, categoria_id, dia) [unique]
   }
 }
 

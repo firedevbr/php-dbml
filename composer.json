@@ -1,5 +1,5 @@
 {
-    "name": "brnbio/php-dbml",
+    "name": "firedevbr/php-dbml",
     "description": "PHP Parser for database markup language (dbml)",
     "type": "library",
     "require": {
@@ -15,9 +15,12 @@
         {
             "name": "Frank Heider",
             "email": "frank@brnb.io"
+        },
+        {
+            "name": "Firedev",
+            "email": "contato@firedev.com.br"
         }
     ],
-    "minimum-stability": "dev",
     "require-dev": {
         "symfony/var-dumper": "^5.1@dev"
     }

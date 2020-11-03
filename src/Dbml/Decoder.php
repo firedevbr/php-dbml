@@ -101,9 +101,6 @@ class Decoder
     private static function decodeIndexes(string $indexesDefinitions, array $tableColumns = []): array
     {
         $result = [];
-
-        echo "<pre>";
-
         $re = '/(?|(\([\w\s,]*\))|([\w]+))( \[(.*)])?/m';
         preg_match_all($re, $indexesDefinitions, $indexes, PREG_SET_ORDER);
 
@@ -256,7 +253,6 @@ class Decoder
         $result = [];
 
         foreach ($enums as $enum) {
-            echo "<pre>";
             $identifier = $enum[1];
             $values     = explode("\n", trim($enum[3]));
 
